@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  door-key-open-detection-with-tflite
+Globals:
+  Function:
+    Timeout: 50
+    MemorySize: 256 # The memory size will be up to the model or image
+
+Resources:
+  InferenceFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      FunctionName: door-key-open-detection-with-tflite
+      PackageType: Image
+      Architectures:
+        - x86_64
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./app
+      DockerTag: python3.8-v1

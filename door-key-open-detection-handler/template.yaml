@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  door-key-open-detection-handler
+
+Parameters:
+  soracomAuthKeyId:
+    Type: String
+    Default: "keyId-xxxxxxx"
+  soracomAuthKey:
+    Type: String
+    Default: "secret-xxxxxx"
+  deviceId:
+    Type: String
+    Default: "XXXXXXXXXXXX"
+  inferenceLambdaArn:
+    Type: String
+    Default: "arn:aws:lambda:xx-xxxx-x:xxxxxxxxxxxx:function:xxxxx"
+  lineNotifyToken:
+    Type: String
+    Default: "replace it to your own token"
+
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 256
+
+Resources:
+  DoorKeyOpenDetectionHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: door-key-open-detection-handler
+      CodeUri: app/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Environment:
+        Variables:
+          SORACOM_AUTH_KEY_ID: !Ref soracomAuthKeyId
+          SORACOM_AUTH_KEY: !Ref soracomAuthKey
+          DEVICE_ID: !Ref deviceId
+          INFERENCE_LAMBDA_ARN: !Ref inferenceLambdaArn
+          LINE_NOTIFY_TOKEN: !Ref lineNotifyToken
+      Architectures:
+        - x86_64
+      Layers:
+        - arn:aws:lambda:us-east-1:717257875195:layer:soracom-cli-0130:1
+      Role: !GetAtt DoorKeyOpenDetectionHandlerRole.Arn
+      Events:
+        Schedule:
+          Type: Schedule
+          Properties:
+            Name: door-key-open-detection-handler-schedule
+            Schedule: cron(0 * ? * * *)
+  
+  DoorKeyOpenDetectionHandlerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "door-key-open-detection-handler-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action: "sts:AssumeRole"
+            Principal:
+              Service: lambda.amazonaws.com
+      Policies:
+        - PolicyName: "door-key-open-detection-handler-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+              - Effect: "Allow"
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource:
+                  - "*"
