@@ -37,7 +37,7 @@ def run_cmd(cmd):
 def export_image():
     """Exports image from Soracom Cloud Camera Service using Soracom API"""
     photo_shoot_time = int(time.time()) * 1000
-    export_sora_cam_image_cmd = "soracom sora-cam devices images export --image-filters '[wide_angle_correction]' --device-id " + DEVICE_ID + " --time " + str(photo_shoot_time)
+    export_sora_cam_image_cmd = "soracom sora-cam devices images export --image-filters 'wide_angle_correction' --device-id " + DEVICE_ID + " --time " + str(photo_shoot_time)
     exported_image_info = json.loads(run_cmd(export_sora_cam_image_cmd).stdout.decode())
     export_id = exported_image_info.get("exportId")
 
